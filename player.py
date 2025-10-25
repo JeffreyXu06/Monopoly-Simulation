@@ -19,7 +19,7 @@ class Player:
 
         for _ in range(steps):
             if self.position.next.name == "GO":
-                self.money += 200  # Passing GO
+                self.money += 200
                 print(f"{self.name} passed GO and collected $200!")
             self.position = self.position.next
 
@@ -28,7 +28,6 @@ class Player:
             self.go_to_jail()
 
     def go_to_jail(self):
-        # Find Jail space and move player there
         node = self.position
         while node.name != "Jail / Just Visiting":
             node = node.next
@@ -48,6 +47,47 @@ class Player:
             print(f"{node.name} is already owned by {node.owner.name}.")
         else:
             print(f"{self.name} cannot buy {node.name}.")
+
+    def buy_house(self, property_node):
+        """Buy a house if you own the property and haven’t reached 4 yet."""
+        if property_node not in self.properties:
+            print(f"{self.name} doesn't own {property_node.name}.")
+            return
+        if property_node.hotel:
+            print(f"{property_node.name} already has a hotel.")
+            return
+        if property_node.houses >= 4:
+            print(f"{property_node.name} already has 4 houses.")
+            return
+        house_cost = 50
+        if self.money >= house_cost:
+            self.money -= house_cost
+            property_node.houses += 1
+            property_node.update_rent()
+            print(f"{self.name} built a house on {property_node.name}. Houses: {property_node.houses}")
+        else:
+            print(f"{self.name} doesn't have enough money to buy a house.")
+
+    def buy_hotel(self, property_node):
+        """Buy a hotel if property has 4 houses."""
+        if property_node not in self.properties:
+            print(f"{self.name} doesn't own {property_node.name}.")
+            return
+        if property_node.hotel:
+            print(f"{property_node.name} already has a hotel.")
+            return
+        if property_node.houses < 4:
+            print(f"{property_node.name} needs 4 houses before a hotel can be built.")
+            return
+        hotel_cost = 100
+        if self.money >= hotel_cost:
+            self.money -= hotel_cost
+            property_node.houses = 0
+            property_node.hotel = True
+            property_node.update_rent()
+            print(f"{self.name} built a hotel on {property_node.name}!")
+        else:
+            print(f"{self.name} doesn't have enough money for a hotel.")
 
     def pay_rent(self):
         node = self.position

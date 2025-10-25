@@ -1,8 +1,7 @@
 import random
 
-# A few sample Chance and Community Chest cards
 CHANCE_CARDS = [
-    ("Advance to GO", lambda p: p.move(40)),  # Loops around board
+    ("Advance to GO", lambda p: p.move(40)),
     ("Go to Jail", lambda p: p.go_to_jail()),
     ("Collect $50", lambda p: setattr(p, "money", p.money + 50)),
     ("Pay $50 fine", lambda p: setattr(p, "money", p.money - 50)),
@@ -15,12 +14,10 @@ COMMUNITY_CHEST_CARDS = [
     ("Go to Jail", lambda p: p.go_to_jail()),
 ]
 
-
 def draw_card(player, deck, deck_name):
     card_text, action = random.choice(deck)
     print(f"{player.name} drew a {deck_name} card: {card_text}")
     action(player)
-
 
 def take_turn(player):
     if player.jailed:
@@ -43,9 +40,16 @@ def take_turn(player):
     elif current.name == "Community Chest":
         draw_card(player, COMMUNITY_CHEST_CARDS, "Community Chest")
 
-    # Property logic (buy/pay rent)
     if current.price > 0:
         if current.owner is None:
             player.buy_property()
         elif current.owner != player:
             player.pay_rent()
+
+    # Optional: Try upgrading owned properties
+    for prop in player.properties:
+        if random.random() < 0.3:  # 30% chance to upgrade
+            if prop.houses < 4 and not prop.hotel:
+                player.buy_house(prop)
+            elif prop.houses == 4 and not prop.hotel:
+                player.buy_hotel(prop)
