@@ -7,6 +7,8 @@ class Player:
 
     def move(self, steps):
         for _ in range(steps):
+            if self.position.next.name == "GO":
+                self.money += 200
             self.position = self.position.next
 
     def buy_property(self):
