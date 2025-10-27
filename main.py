@@ -10,8 +10,8 @@ player2 = Player("Bob", board.head)
 player3 = Player("Cynthia", board.head)
 player4 = Player("D4vd", board.head)
 
-#players = [player1, player2, player3, player4]
-players = [player1, player2]
+players = [player1, player2, player3, player4]
+# players = [player1, player2]
 # # Simulate 5 turns
 # for turn in range(5):
 #     print(f"\n=== Turn {turn + 1} ===")
@@ -27,22 +27,24 @@ while player1.money > 0 and player2.money > 0 and turn < 250:
     for player in players:
         take_turn(player, board)
 
-if player1.money > 0 and player2.money <= 0:
-    winner = player1  
-    loser = player2 if winner == player1 else player1
-    print(f"\n🏁 Game over! {winner.name} wins with ${winner.money} remaining.")
-    print(f"{loser.name} went bankrupt at turn {turn}.")
-elif player1.money <= 0 and player2.money > 0:
-    winner = player1  
-    loser = player2 if winner == player1 else player1
-    print(f"\n🏁 Game over! {winner.name} wins with ${winner.money} remaining.")
-    print(f"{loser.name} went bankrupt at turn {turn}.")
-elif player1.money > 0 and player2.money > 0:
-    if player1.money == player2.money:
-         print(f"\n🏁 Game over! It's a tie with ${player1.money} remaining.")
-    else:
+print("\n Game Over! ")
+print(f"Total Turns Played: {turn}\n")
 
-        winner = player1 if player1.money > player2.money else player2
-        loser = player1 if player1.money < player2.money else player2
-        print(f"\n🏁 Game over! {winner.name} wins with ${winner.money} remaining.")
-        print(f"{loser.name} had less money on turn {turn} with ${loser.money} remaining.")
+# Sort players by remaining money (descending)
+players_sorted = sorted(players, key=lambda p: p.money, reverse=True)
+
+# Print final scoreboard
+print("=== Final Scoreboard ===")
+for i, p in enumerate(players_sorted, start=1):
+    status = "Bankrupt" if p.money <= 0 else f"${p.money}"
+    print(f"{i}. {p.name}: {status}")
+
+# Determine winner(s)
+alive_players = [p for p in players if p.money > 0]
+if len(alive_players) == 1:
+    print(f"\n{alive_players[0].name} wins with ${alive_players[0].money} remaining!")
+elif len(alive_players) > 1:
+    print(f"\nNo clear winner after {turn} turns.")
+    print(f"Top player: {players_sorted[0].name} (${players_sorted[0].money})")
+else:
+    print("\nAll players went bankrupt! No winners this time.")
