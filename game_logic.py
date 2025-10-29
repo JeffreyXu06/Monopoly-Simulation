@@ -2,18 +2,30 @@ import random
 
 # --- Chance and Community Chest cards ---
 CHANCE_CARDS = [
-    ("Advance to GO", lambda p, b: p.move(40)),  # Loops around board
-    ("Go to Jail", lambda p, b: p.go_to_jail()),
+    ("Advance to GO", lambda p, b: setattr(p, "position", b.head)),
+    ("Go to Jail", lambda p, b: p.go_to_jail(find_jail(b))),
     ("Collect $50", lambda p, b: setattr(p, "money", p.money + 50)),
-    ("Pay $50 fine", lambda p, b: setattr(p, "money", p.money - 50)),
+    ("Pay $50 fine", lambda p, b: setattr(p, "money", max(0, p.money - 50))),
 ]
 
 COMMUNITY_CHEST_CARDS = [
     ("Bank error in your favor. Collect $200", lambda p, b: setattr(p, "money", p.money + 200)),
-    ("Doctor's fee. Pay $50", lambda p, b: setattr(p, "money", p.money - 50)),
+    ("Doctor's fee. Pay $50", lambda p, b: setattr(p, "money", max(0, p.money - 50))),
     ("From sale of stock you get $45", lambda p, b: setattr(p, "money", p.money + 45)),
-    ("Go to Jail", lambda p, b: p.go_to_jail()),
+    ("Go to Jail", lambda p, b: p.go_to_jail(find_jail(b))),
 ]
+
+
+def find_jail(board):
+    """Find the jail node on the board."""
+    current = board.head
+    while True:
+        if current.name == "Jail / Just Visiting":
+            return current
+        current = current.next
+        if current == board.head:
+            break
+    return board.head  # Fallback
 
 
 def draw_card(player, deck, deck_name, board):
@@ -27,17 +39,16 @@ def take_turn(player, board):
     """Handle a full player turn including movement, property actions, and card draws."""
     if player.jailed:
         print(f"{player.name} is in jail and cannot move this turn.")
-        player.turns_in_jail += 1
-        if player.turns_in_jail >= 3:
+        player.in_jail_turns += 1
+        if player.in_jail_turns >= 3:
             player.jailed = False
-            player.turns_in_jail = 0
+            player.in_jail_turns = 0
             print(f"{player.name} has served their sentence and is released from jail.")
         return
 
-    roll = random.randint(2, 12)
-    print(f"\n🎲 {player.name} rolls {roll}")
-    player.move(roll)
-    player.display_status()
+    # Remove the separate roll - move() handles it internally
+    print(f"\n🎲 {player.name}'s turn:")
+    player.move()
 
     current = player.position
 
@@ -47,28 +58,23 @@ def take_turn(player, board):
     elif current.name == "Community Chest":
         draw_card(player, COMMUNITY_CHEST_CARDS, "Community Chest", board)
     elif current.name == "Go To Jail":
-        player.go_to_jail()
+        player.go_to_jail(find_jail(board))
         return
 
     # --- Handle property spaces ---
-    if current.price > 0:
+    if hasattr(current, "price") and current.price > 0:
         if current.owner is None:
-            decision = random.choice(["buy", "skip"])  # could later be user input
-            if decision == "buy" and player.money >= current.price:
-                player.buy_property()
-            else:
-                print(f"{player.name} decided not to buy {current.name}.")
+            player.attempt_purchase()
         elif current.owner != player:
-            player.pay_rent(board)
+            player.pay_rent()
 
-    # --- Optional: Simulate random house/hotel purchases if the player can afford it ---
-    if current.owner == player and current.color:
-        # Randomly decide to build (for testing AI behavior)
+    # --- Property development ---
+    player.develop_property()
 
-        if random.random() < 1:
-            player.buy_house(current, board)
-        elif random.random() < 0.5:
-            player.buy_hotel(current, board)
-
+    if player.money <= 0:
+        print(f"💀 {player.name} has gone bankrupt!")
+        player.money = 0
+        return
+    
     # --- End of turn status ---
     print(f"End of {player.name}'s turn: ${player.money}\n")
