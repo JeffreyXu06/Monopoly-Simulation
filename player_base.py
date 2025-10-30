@@ -5,7 +5,7 @@ class PlayerBase:
     Base player class that defines shared logic for all Monopoly players.
     Each player subclass (e.g., Alice, Bob) customizes buy/build probabilities.
     """
-    def __init__(self, name, buy_property_rate, buy_house_rate, buy_hotel_rate):
+    def __init__(self, name, buy_property_rate, buy_house_rate, buy_hotel_rate, min_cash_reserve=150):
         self.name = name
         self.money = 1500
         self.position = None  # Board node (LinkedList node)
@@ -13,6 +13,7 @@ class PlayerBase:
         self.buy_property_rate = buy_property_rate
         self.buy_house_rate = buy_house_rate
         self.buy_hotel_rate = buy_hotel_rate
+        self.min_cash_reserve = min_cash_reserve  # Add this line
         self.jailed = False
         self.in_jail_turns = 0
 
@@ -48,7 +49,7 @@ class PlayerBase:
             money_after_purchase = self.money - node.price
             adjusted_rate = self.buy_property_rate
             
-            if money_after_purchase < 150:
+            if money_after_purchase < self.min_cash_reserve:
                 adjusted_rate *= 0.3  # Only 30% as likely to buy when it would leave them low on cash
             
             if random.random() < adjusted_rate and self.money >= node.price:
@@ -83,9 +84,9 @@ class PlayerBase:
 
             # Try building a house
             if not prop.hotel and prop.houses < 4:
-                # Check if building would leave them with less than $150
+                # Check if building would leave them with less than minimum reserve
                 money_after_building = self.money - prop.house_cost
-                if money_after_building < 150:
+                if money_after_building < self.min_cash_reserve:
                     continue  # Skip building if it would leave them too low on cash
                 
                 if self.money >= prop.house_cost and random.random() < self.buy_house_rate:
@@ -95,9 +96,9 @@ class PlayerBase:
 
             # Try upgrading to a hotel
             elif prop.houses == 4 and not prop.hotel:
-                # Check if upgrading would leave them with less than $150
+                # Check if upgrading would leave them with less than minimum reserve
                 money_after_building = self.money - prop.house_cost
-                if money_after_building < 150:
+                if money_after_building < self.min_cash_reserve:
                     continue  # Skip upgrading if it would leave them too low on cash
                 
                 if self.money >= prop.house_cost and random.random() < self.buy_hotel_rate:
