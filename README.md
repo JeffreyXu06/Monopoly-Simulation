@@ -9,3 +9,4 @@ simulate_multiple_games(num_games=100, max_turns=250)
                           ^ determine how many games are going to be simulated.
 
 If you want to make your own player just add a player file, with the same attributes, you can change them to see what the optimal strategy is. 
+This program simulates two monopoly players with different personalities playing at random. 
