@@ -86,7 +86,6 @@ def simulate_multiple_games(num_games=100, max_turns=250):
         print(f"\n{player_name}:")
         print(f"  Wins: {stats['wins']}/{num_games} ({win_rate:.1f}%)")
         print(f"  Average money when winning: ${avg_money:.2f}")
-        print(f"  Bankruptcies: {stats['bankruptcies']}")
     
     avg_turns = total_turns / num_games
     print(f"\nAverage game length: {avg_turns:.1f} turns")
