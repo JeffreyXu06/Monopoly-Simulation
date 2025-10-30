@@ -76,11 +76,53 @@ class PlayerBase:
             owner.money += payment
             print(f"{self.name} paid ${payment} rent to {owner.name} for {node.name}")
 
+    def has_monopoly(self, color):
+        """Check if player owns all properties of a given color."""
+        if color is None:
+            return False
+        
+        # Count total properties of this color on the board
+        # We need to traverse the board to count
+        current = self.position
+        if not current:
+            return False
+        
+        # Start from head and traverse circular list
+        start = current
+        while current.next != start:
+            current = current.next
+        # Now find head
+        current = self.position
+        color_properties_on_board = []
+        temp = current
+        visited = set()
+        
+        # Traverse to find all properties of this color
+        while True:
+            if id(temp) in visited:
+                break
+            visited.add(id(temp))
+            
+            if hasattr(temp, 'color') and temp.color == color:
+                color_properties_on_board.append(temp)
+            
+            temp = temp.next
+        
+        # Count how many of this color the player owns
+        player_color_properties = [p for p in self.properties if p.color == color]
+        
+        # Player has monopoly if they own all properties of that color
+        return len(player_color_properties) == len(color_properties_on_board)
+
     def develop_property(self):
-        """Attempt to build houses or hotels on owned properties."""
+    
         for prop in self.properties:
             if prop.price == 0 or prop.color is None:
                 continue  # Skip non-buildable properties
+            
+            # Check if player has monopoly on this color
+            if not self.has_monopoly(prop.color):
+                continue  # Can only build when you own all properties of that color
 
             # Try building a house
             if not prop.hotel and prop.houses < 4:
@@ -106,7 +148,6 @@ class PlayerBase:
                     prop.houses = 0
                     self.money -= prop.house_cost
                     print(f"{self.name} upgraded {prop.name} to a hotel!")
-
     # ---------------- Jail Logic ----------------
     def go_to_jail(self, jail_node):
         """Send the player to jail."""
