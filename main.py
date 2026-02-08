@@ -32,25 +32,25 @@ def play_game(game_number, max_turns=250, verbose=True):
                 take_turn(player, board)
     
     if verbose:
-        print("\n🏁 Game Over! 🏁")
+        print("\n Game Over! ")
     
     players_sorted = sorted(players, key=lambda p: p.money, reverse=True)
     
     if verbose:
         for i, p in enumerate(players_sorted, start=1):
-            status = "💀 Bankrupt" if p.money <= 0 else f"${p.money}"
+            status = "Bankrupt" if p.money <= 0 else f"${p.money}"
             print(f"{i}. {p.name}: {status}")
     
     winner = players_sorted[0]
     if verbose:
-        print(f"\n🏆 {winner.name} wins with ${winner.money} remaining!")
+        print(f"\n{winner.name} wins with ${winner.money} remaining!")
     
     return winner.name, winner.money, turn
 
 
 def simulate_multiple_games(num_games=100, max_turns=250):
     """Simulate multiple games and track statistics."""
-    print(f"🎮 Starting simulation of {num_games} games...\n")
+    print(f"Starting simulation of {num_games} games...\n")
     
     results = {
         "Alice": {"wins": 0, "total_money": 0, "bankruptcies": 0},
@@ -76,7 +76,7 @@ def simulate_multiple_games(num_games=100, max_turns=250):
     
     # Print final statistics
     print("\n" + "="*50)
-    print("📊 SIMULATION RESULTS")
+    print("SIMULATION RESULTS")
     print("="*50)
     
     for player_name, stats in results.items():
@@ -96,15 +96,15 @@ def simulate_multiple_games(num_games=100, max_turns=250):
     bob_wins = results["Bob"]["wins"]
     
     if alice_wins > bob_wins:
-        print(f"🏆 OVERALL WINNER: Alice ({alice_wins} wins vs {bob_wins})")
+        print(f"OVERALL WINNER: Alice ({alice_wins} wins vs {bob_wins})")
         win_margin = alice_wins - bob_wins
         print(f"   Alice won {win_margin} more games than Bob!")
     elif bob_wins > alice_wins:
-        print(f"🏆 OVERALL WINNER: Bob ({bob_wins} wins vs {alice_wins})")
+        print(f"OVERALL WINNER: Bob ({bob_wins} wins vs {alice_wins})")
         win_margin = bob_wins - alice_wins
         print(f"   Bob won {win_margin} more games than Alice!")
     else:
-        print(f"🤝 IT'S A TIE! Both players won {alice_wins} games each!")
+        print(f"IT'S A TIE! Both players won {alice_wins} games each!")
     
     print("="*50)
 
@@ -114,4 +114,4 @@ if __name__ == "__main__":
     simulate_multiple_games(num_games=100, max_turns=250)
     
     # Optional: Play one verbose game to see details
-    print("\n\n" + "="*50)
+    print("\n\n" + "="*50) 

@@ -47,7 +47,7 @@ def take_turn(player, board):
         return
 
     # Remove the separate roll - move() handles it internally
-    print(f"\n🎲 {player.name}'s turn:")
+    print(f"\n {player.name}'s turn:")
     player.move()
 
     current = player.position
@@ -72,7 +72,7 @@ def take_turn(player, board):
     player.develop_property()
 
     if player.money <= 0:
-        print(f"💀 {player.name} has gone bankrupt!")
+        print(f"{player.name} has gone bankrupt!")
         player.money = 0
         return
     
